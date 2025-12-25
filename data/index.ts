@@ -1,4 +1,10 @@
- export const suggestions = [
+export const dataUser = {
+  name: "John Doe",
+  email: "john.doe@example.com",
+  picture: "https://example.com/john-doe.jpg",
+}
+
+export const suggestions = [
     {
       label: "Finance Tracker",
       icon: "💸",

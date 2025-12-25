@@ -25,7 +25,7 @@ const LandingSection = () => {
                 Desgin mobile apps <br className="md:hidden" />
                 <span className="text-primary">in minutes </span>
               </h1>
-              <p className="mx-auto max-w-2xl text-center font-medium text-foreground leading-relaxed sm:text-lg">
+              <p className="mx-auto max-w-2xl text-center font-medium text-foreground leading-relaxed sm:text-lg mb-5">
                 Create stunning mobile app designs effortlessly with our
                 AI-powered tool. Transform your ideas into beautiful,
                 user-friendly interfaces in just minutes.
