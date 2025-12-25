@@ -1,10 +1,8 @@
 "use client";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LoginLink, LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
-import { LogOutIcon, MoonIcon, SunIcon } from "lucide-react";
+import { LogOutIcon, MoonIcon, SunIcon, UserIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import {
@@ -17,11 +15,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Logo from "./Logo";
+import { useSession, signOut } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
-  const { user } = useKindeBrowserClient();
+  const { data: session, isPending } = useSession();
+  const router = useRouter();
   const isDark = theme === "dark";
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/");
+    router.refresh();
+  };
+
   return (
     <div className="sticky top-0 right-0 left-0 z-30">
       <header className="h-16 border-b bg-background py-4">
@@ -46,7 +54,6 @@ const Header = () => {
           <div
             className="flex flex-1 items-center
            justify-end gap-3
-
           "
           >
             <Button
@@ -68,39 +75,42 @@ const Header = () => {
                 )}
               />
             </Button>
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Avatar
-                    className="h-8 w-8
-                  shrink-0 rounded-full"
-                  >
-                    <AvatarImage
-                      src={user?.picture || ""}
-                      alt={user?.given_name || ""}
-                    />
-                    <AvatarFallback className="rounded-lg">
-                      {user?.given_name?.charAt(0)}
-                      {user?.family_name?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogoutLink className="w-full flex items-center">
-                      <LogOutIcon className="size-4" />
-                      Logout
-                    </LogoutLink>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <LoginLink>
-                <Button>Sign in</Button>
-              </LoginLink>
-            )}
+            {!isPending &&
+              (session?.user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Avatar
+                      className="h-8 w-8
+                    shrink-0 rounded-full"
+                    >
+                      <AvatarImage
+                        src={session.user.image || ""}
+                        alt={session.user.name || ""}
+                      />
+                      <AvatarFallback className="rounded-lg">
+                        <UserIcon className="size-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="p-0">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center px-2 py-1.5 text-sm cursor-pointer"
+                      >
+                        <LogOutIcon className="mr-2 h-4 w-4" />
+                        Logout
+                      </button>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link href="/login">
+                  <Button size="sm">Sign in</Button>
+                </Link>
+              ))}
           </div>
         </div>
       </header>

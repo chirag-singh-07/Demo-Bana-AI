@@ -1,18 +1,26 @@
-import { withAuth } from "@kinde-oss/kinde-auth-nextjs/middleware";
-import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
+import { NextResponse, type NextRequest } from "next/server";
 
-export default withAuth(
-  async function middleware(req: NextRequest) {
-  },
-  {
-    // Middleware still runs on all routes, but doesn't protect the blog route
-    isReturnToCurrentPage: true,
-    publicPaths: ["/"],
+export default async function proxy(request: NextRequest) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session && request.nextUrl.pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
-);
+
+  if (
+    session &&
+    (request.nextUrl.pathname === "/login" ||
+      request.nextUrl.pathname === "/register")
+  ) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-  ],
-}
+  matcher: ["/dashboard/:path*", "/login", "/register"],
+};
