@@ -1,48 +1,66 @@
+
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { generateProjectName } from "@/lib/utils";
+
 import { NextRequest, NextResponse } from "next/server";
+import { generateProjectName } from "@/actions";
+
+// OPTIONAL: runtime hint (edge only if prisma supports it)
+// export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt } = await req.json();
+    // 1️⃣ Parse & validate input
+    const body = await req.json();
+    const prompt = body?.prompt?.trim();
 
-    if (!prompt) {
+    if (!prompt || prompt.length < 10 || prompt.length > 2000) {
       return NextResponse.json(
-        { error: "Prompt is required" },
+        { error: "Prompt must be between 10 and 2000 characters" },
         { status: 400 }
       );
     }
 
+    // 2️⃣ Authenticate user
     const session = await auth.api.getSession({
       headers: await headers(),
     });
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = await session.user.id;
 
+    const userId = session.user.id;
+
+    // 3️⃣ Generate project name (can be slow → isolated)
     const projectName = await generateProjectName(prompt);
 
+    // 4️⃣ Create project (secure write)
     const project = await prisma.project.create({
       data: {
+        name: projectName,
         prompt,
         userId,
-        name: projectName,
+      },
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
       },
     });
 
-    if (!project) {
-      return NextResponse.json(
-        { error: "Failed to create project" },
-        { status: 500 }
-      );
-    }
+    // Inngest Function could be called here for post-create processing
 
-    return NextResponse.json(project, { status: 200 });
+    return NextResponse.json(project, { status: 201 });
+
   } catch (error) {
-    console.log(error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    // 5️⃣ Safe logging (no leaks)
+    console.error("Create Project Error:", error);
+
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
+

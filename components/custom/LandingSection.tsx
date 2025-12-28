@@ -4,12 +4,19 @@ import PromptInput from "./PromptInput";
 import { Suggestion, Suggestions } from "../ai-elements/suggestion";
 import { suggestions } from "@/data";
 import Header from "./Header";
+import { useCreateProject } from "@/features/use-project";
 
 const LandingSection = () => {
   const [promptText, setPromptText] = useState<string>("");
+  const { mutate: createProject, isPending } = useCreateProject();
 
   const handleSuggestionClick = (value: string) => {
     setPromptText(value);
+  };
+
+  const handleSubmit = () => {
+    if (promptText.trim() === "") return;
+    createProject(promptText);
   };
 
   return (
@@ -38,8 +45,8 @@ const LandingSection = () => {
                   className="ring-2 ring-primary "
                   promptText={promptText}
                   setPromptText={setPromptText}
-                  isLoading={false}
-                  onSubmit={() => {}}
+                  isLoading={isPending}
+                  onSubmit={handleSubmit}
                 />
               </div>
 

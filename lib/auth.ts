@@ -32,10 +32,12 @@ export const auth = betterAuth({
     },
   },
   session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
     cookieCache: {
       enabled: true,
-      maxAge: 5 * 60, // 5 minutes
+      maxAge: 60 * 60 * 24, // 24 hours
     },
+    updateAge: 60 * 60 * 24, // Update session every 24 hours
   },
   // Ensure the baseURL is set correctly for both local and production
   baseURL: process.env.AUTH_URL || "http://localhost:3000",

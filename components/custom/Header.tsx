@@ -2,7 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LogOutIcon, MoonIcon, SunIcon, UserIcon } from "lucide-react";
+import {
+  LogOutIcon,
+  MoonIcon,
+  SunIcon,
+  UserIcon,
+  Loader2Icon,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import {
@@ -21,13 +27,18 @@ import { useRouter } from "next/navigation";
 const Header = () => {
   const { theme, setTheme } = useTheme();
   const { data: session, isPending } = useSession();
+  // console.log("Session data in Header:", session);
   const router = useRouter();
   const isDark = theme === "dark";
 
   const handleLogout = async () => {
-    await signOut();
-    router.push("/");
-    router.refresh();
+    try {
+      await signOut();
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -75,42 +86,58 @@ const Header = () => {
                 )}
               />
             </Button>
-            {!isPending &&
-              (session?.user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <Avatar
-                      className="h-8 w-8
-                    shrink-0 rounded-full"
-                    >
-                      <AvatarImage
-                        src={session.user.image || ""}
-                        alt={session.user.name || ""}
-                      />
-                      <AvatarFallback className="rounded-lg">
-                        <UserIcon className="size-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="p-0">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center px-2 py-1.5 text-sm cursor-pointer"
-                      >
-                        <LogOutIcon className="mr-2 h-4 w-4" />
-                        Logout
-                      </button>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
+
+            {isPending ? (
+              <Loader2Icon className="h-5 w-5 animate-spin" />
+            ) : session?.user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar
+                    className="h-8 w-8
+                  shrink-0 rounded-full cursor-pointer"
+                  >
+                    <AvatarImage
+                      src={session.user.image || ""}
+                      alt={session.user.name || ""}
+                    />
+                    <AvatarFallback className="rounded-lg">
+                      {session.user.name ? (
+                        session.user.name.charAt(0).toUpperCase()
+                      ) : (
+                        <UserIcon className="h-4 w-4" />
+                      )}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/project">Projects</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-red-500 cursor-pointer"
+                  >
+                    <LogOutIcon className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div>
+                <Link href="/register" className="mr-2">
+                  <Button size="sm">Start For Free</Button>
+                </Link>
                 <Link href="/login">
                   <Button size="sm">Sign in</Button>
                 </Link>
-              ))}
+              </div>
+            )}
           </div>
         </div>
       </header>

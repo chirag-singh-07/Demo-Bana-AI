@@ -14,17 +14,77 @@ export const sendOtpEmail = async (email: string, otp: string) => {
     to: email,
     subject: "Your Verification Code - Demp Bana AI",
     html: `
-      <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff; color: #000000;">
-        <h2 style="font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 24px; letter-spacing: -0.025em;">Demp Bana AI</h2>
-        <p style="font-size: 16px; color: #4b5563; text-align: center; margin-bottom: 32px;">Please use the following code to verify your email address.</p>
-        <div style="text-align: center; margin-bottom: 32px;">
-          <span style="display: inline-block; padding: 16px 32px; font-size: 32px; font-weight: 800; background-color: #f3f4f6; border-radius: 8px; letter-spacing: 0.25em;">${otp}</span>
-        </div>
-        <p style="font-size: 14px; text-align: center; color: #9ca3af; margin-bottom: 32px;">This code will expire in 10 minutes.</p>
-        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin-bottom: 32px;" />
-        <p style="font-size: 12px; text-align: center; color: #9ca3af;">If you didn't request this code, you can safely ignore this email.</p>
-      </div>
-    `,
+  <div style="
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 48px 40px;
+    background-color: #fafafa;
+    border: 1px solid #e6e6e6;
+    border-radius: 16px;
+    color: #111827;
+  ">
+    <h2 style="
+      font-size: 22px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    ">
+      Demp Bana AI
+    </h2>
+
+    <p style="
+      font-size: 15px;
+      line-height: 1.6;
+      color: #4b5563;
+      text-align: center;
+      margin-bottom: 36px;
+    ">
+      Use the verification code below to confirm your email address.
+    </p>
+
+    <div style="text-align: center; margin-bottom: 36px;">
+      <span style="
+        display: inline-block;
+        padding: 18px 36px;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: 0.3em;
+        background-color: #f4f4f5;
+        color: #111827;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+      ">
+        ${otp}
+      </span>
+    </div>
+
+    <p style="
+      font-size: 13px;
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 32px;
+    ">
+      This code expires in <strong>10 minutes</strong>.
+    </p>
+
+    <hr style="
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 32px 0;
+    " />
+
+    <p style="
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
+      color: #9ca3af;
+    ">
+      If you didn’t request this email, you can safely ignore it.
+    </p>
+  </div>
+`,
   };
 
   try {

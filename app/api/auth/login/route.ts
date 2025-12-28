@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return response;
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     if (error instanceof Response) return error;
     // Better Auth throws a Response object on errors sometimes,

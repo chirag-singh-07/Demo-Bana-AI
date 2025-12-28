@@ -11,6 +11,11 @@ export const checkRateLimit = async ({
   limit,
   windowInMinutes,
 }: RateLimitConfig) => {
+  // Skip rate limiting if disabled via environment variable (useful for development)
+  if (process.env.DISABLE_RATE_LIMIT === "true") {
+    return { success: true, remaining: limit };
+  }
+
   const now = new Date();
   const expiresAt = new Date(now.getTime() + windowInMinutes * 60 * 1000);
 

@@ -14,36 +14,36 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String  @id @default(cuid()) @map("_id")
   name          String?
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String  @unique
+  emailVerified Boolean @default(false)
   image         String?
   password      String?
-  
+
   // OTP Verification
   emailOtp       String?
   emailOtpExpiry DateTime?
-  
-  sessions      Session[]
-  accounts      Account[]
-  projects      Project[]
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  sessions Session[]
+  accounts Account[]
+  projects Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("user")
 }
 
 model Session {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(cuid()) @map("_id")
   expiresAt DateTime
   token     String
   createdAt DateTime
   updatedAt DateTime
   ipAddress String?
   userAgent String?
-  userId    String   @db.ObjectId
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
@@ -51,10 +51,10 @@ model Session {
 }
 
 model Account {
-  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  id                    String    @id @default(cuid()) @map("_id")
   accountId             String
   providerId            String
-  userId                String    @db.ObjectId
+  userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
@@ -70,7 +70,7 @@ model Account {
 }
 
 model Verification {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String    @id @default(cuid()) @map("_id")
   identifier String
   value      String
   expiresAt  DateTime
@@ -81,7 +81,7 @@ model Verification {
 }
 
 model RateLimit {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(cuid()) @map("_id")
   key       String   @unique // e.g., "signup:ip:127.0.0.1" or "otp:email:user@example.com"
   count     Int      @default(0)
   expiresAt DateTime
@@ -90,24 +90,25 @@ model RateLimit {
 }
 
 model Project {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String    @db.ObjectId
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name      String
+    prompt    String?            // <-- added prompt field
   theme     String?
   thumbnail String?
   frames    Frame[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("project")
 }
 
 model Frame {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(cuid()) @map("_id")
   title       String
   htmlContent String
-  projectId   String   @db.ObjectId
+  projectId   String
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

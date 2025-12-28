@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Jost } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-// @ts-ignore - allow side-effect CSS import without type declarations
+// @ts-expect-error - allow side-effect CSS import without type declarations
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { QueryProvider } from "@/context/query-provider";
 
 const josefinSans = Jost({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${josefinSans.className} ntialiased`}>
+        <QueryProvider>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -31,6 +33,7 @@ export default function RootLayout({
           {children}
           <Toaster richColors position="bottom-center" />
         </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

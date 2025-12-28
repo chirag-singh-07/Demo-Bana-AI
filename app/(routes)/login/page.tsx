@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Chrome } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { emailSignIn } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,28 +21,30 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      // Use Better Auth client directly to ensure session cookies are set
+      const response = await emailSignIn({
+        email,
+        password,
       });
 
-      const data = await res.json();
+      console.log("Login response:", response);
 
-      if (!res.ok) {
-        if (data.notVerified) {
+      if (response.error) {
+        if (response.error.message?.includes("Email not verified")) {
           toast.error("Please verify your email first.");
           router.push(`/register?email=${encodeURIComponent(email)}&step=otp`);
           return;
         }
-        throw new Error(data.error || "Login failed");
+        throw new Error(response.error.message || "Login failed");
       }
 
       toast.success("Logged in successfully!");
-      router.push("/");
+      // Refresh to update session state
       router.refresh();
+      router.push("/");
     } catch (error: any) {
-      toast.error(error.message);
+      console.error("Login error:", error);
+      toast.error(error.message || "Login failed");
     } finally {
       setLoading(false);
     }
