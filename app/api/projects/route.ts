@@ -1,4 +1,3 @@
-
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -8,6 +7,40 @@ import { generateProjectName } from "@/actions";
 
 // OPTIONAL: runtime hint (edge only if prisma supports it)
 // export const runtime = "nodejs";
+
+export async function GET(req: NextRequest) {
+  try {
+    // 1️⃣ Authenticate user
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
+    // 2️⃣ Fetch projects securely
+    const projects = await prisma.project.findMany({
+      where: { userId },
+      take: 10,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (!projects) {
+      return NextResponse.json({ error: "No projects found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ projects }, { status: 200 });
+  } catch (error) {
+    // 3️⃣ Safe logging (no leaks)
+    console.error("Fetch Projects Error:", error);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,7 +85,6 @@ export async function POST(req: NextRequest) {
     // Inngest Function could be called here for post-create processing
 
     return NextResponse.json(project, { status: 201 });
-
   } catch (error) {
     // 5️⃣ Safe logging (no leaks)
     console.error("Create Project Error:", error);
@@ -63,4 +95,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
